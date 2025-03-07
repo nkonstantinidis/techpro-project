@@ -1,0 +1,79 @@
+.container {
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+  }
+  
+  .header h3 {
+    margin: 0;
+  }
+  
+  .savingLabel {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-left: 1rem;
+  }
+  
+  .activeUsers {
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+  
+  .form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .titleInput {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .contentInput {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: none;
+    font-family: inherit;
+    margin-bottom: 1rem;
+  }
+  
+  .saveButton {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+  }
+  
+  .saveButton:hover {
+    background-color: #0051a2;
+  }
+  
+  .error {
+    color: #e53e3e;
+    margin-bottom: 1rem;
+  }

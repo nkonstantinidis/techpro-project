@@ -1,0 +1,28 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .pageTitle {
+    margin-bottom: 1.5rem;
+  }
+  
+  .notesLayout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+    height: 70vh;
+  }
+  
+  .loading {
+    text-align: center;
+    margin: 2rem 0;
+  }
+  
+  @media (max-width: 768px) {
+    .notesLayout {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+  }

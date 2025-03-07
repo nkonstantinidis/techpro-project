@@ -1,0 +1,30 @@
+.container {
+    max-width: 500px;
+    margin: 4rem auto;
+  }
+  
+  .tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 1rem;
+    text-align: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .tab:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .tab.active {
+    border-bottom: 2px solid #0070f3;
+    font-weight: 500;
+  }

@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+-- Create profiles table
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE,
+  username TEXT UNIQUE,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (id)
+);
 
-## Getting Started
+-- Enable Row Level Security
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-First, run the development server:
+-- Create policy to allow users to read all profiles
+CREATE POLICY "Profiles are viewable by everyone" ON profiles
+  FOR SELECT USING (true);
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+-- Create policy to allow users to update their own profiles
+CREATE POLICY "Users can update their own profiles" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+  -- Create messages table
+CREATE TABLE messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-## Deploy on Vercel
+-- Enable Row Level Security
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-- Create policy to allow authenticated users to read all messages
+CREATE POLICY "Messages are viewable by authenticated users" ON messages
+  FOR SELECT USING (auth.role() = 'authenticated');
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-- Create policy to allow users to insert their own messages
+CREATE POLICY "Users can insert their own messages" ON messages
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+
+
+
+
+
+  -- Create notes table
+CREATE TABLE notes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  created_by UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow authenticated users to read all notes
+CREATE POLICY "Notes are viewable by authenticated users" ON notes
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+-- Create policy to allow authenticated users to insert notes
+CREATE POLICY "Authenticated users can insert notes" ON notes
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+-- Create policy to allow authenticated users to update notes
+CREATE POLICY "Authenticated users can update notes" ON notes
+  FOR UPDATE USING (auth.role() = 'authenticated');

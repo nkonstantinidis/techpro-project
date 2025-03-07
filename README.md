@@ -1,33 +1,25 @@
--- Create profiles table
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE,
-  username TEXT UNIQUE,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  PRIMARY KEY (id)
+-- Users table for temporary profiles
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  username TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow users to read all profiles
-CREATE POLICY "Profiles are viewable by everyone" ON profiles
+-- Create policy to allow anyone to read all users
+CREATE POLICY "Users are viewable by everyone" ON users
   FOR SELECT USING (true);
 
--- Create policy to allow users to update their own profiles
-CREATE POLICY "Users can update their own profiles" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
+-- Create policy to allow users to insert their own profile
+CREATE POLICY "Anyone can create a user profile" ON users
+  FOR INSERT WITH CHECK (true);
 
-
-
-
-
-
-
-  -- Create messages table
+-- Messages table for the chat
 CREATE TABLE messages (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -35,40 +27,57 @@ CREATE TABLE messages (
 -- Enable Row Level Security
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow authenticated users to read all messages
-CREATE POLICY "Messages are viewable by authenticated users" ON messages
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- Create policy to allow anyone to read messages
+CREATE POLICY "Messages are viewable by everyone" ON messages
+  FOR SELECT USING (true);
 
 -- Create policy to allow users to insert their own messages
 CREATE POLICY "Users can insert their own messages" ON messages
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+  FOR INSERT WITH CHECK (true);
 
-
-
-
-
-
-  -- Create notes table
+-- Notes table for collaborative notes
 CREATE TABLE notes (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   content TEXT,
-  created_by UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable Row Level Security
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow authenticated users to read all notes
-CREATE POLICY "Notes are viewable by authenticated users" ON notes
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- Create policy to allow anyone to read notes
+CREATE POLICY "Notes are viewable by everyone" ON notes
+  FOR SELECT USING (true);
 
--- Create policy to allow authenticated users to insert notes
-CREATE POLICY "Authenticated users can insert notes" ON notes
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+-- Create policy to allow anyone to create, update notes
+CREATE POLICY "Anyone can create notes" ON notes
+  FOR INSERT WITH CHECK (true);
 
--- Create policy to allow authenticated users to update notes
-CREATE POLICY "Authenticated users can update notes" ON notes
-  FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Anyone can update notes" ON notes
+  FOR UPDATE USING (true);
+
+-- Table to track which users are editing which notes
+CREATE TABLE note_editors (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  note_id UUID REFERENCES notes(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(note_id, user_id)
+);
+
+-- Enable Row Level Security
+ALTER TABLE note_editors ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow anyone to read note editors
+CREATE POLICY "Note editors are viewable by everyone" ON note_editors
+  FOR SELECT USING (true);
+
+-- Create policy to allow anyone to insert note editors
+CREATE POLICY "Anyone can register as a note editor" ON note_editors
+  FOR INSERT WITH CHECK (true);
+
+-- Create policy to allow anyone to delete note editors
+CREATE POLICY "Anyone can unregister as a note editor" ON note_editors
+  FOR DELETE USING (true);

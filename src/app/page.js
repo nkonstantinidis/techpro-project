@@ -1,26 +1,38 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from 'react';
+import UserProfile from '../components/UserProfile';
 import styles from './page.module.css';
 
 export default function Home() {
-  const { user } = useAuth();
-  const router = useRouter();
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    // Redirect authenticated users to dashboard, others to auth page
-    if (user) {
-      router.push('/dashboard');
-    } else {
-      router.push('/auth');
-    }
-  }, [user, router]);
+  const handleProfileCreated = (userData) => {
+    setUser(userData);
+  };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Loading...</h1>
-    </div>
+
+      <div className={styles.container}>
+        {!user ? (
+          <UserProfile onProfileCreated={handleProfileCreated} />
+        ) : (
+          <div className={styles.welcome}>
+            <h2>Welcome, {user.username}!</h2>
+            <p>Choose what you would like to do:</p>
+            <div className={styles.options}>
+              <a href="/chat" className={styles.optionCard}>
+                <h3>Live Chat</h3>
+                <p>Join the conversation in real-time</p>
+              </a>
+              <a href="/notes" className={styles.optionCard}>
+                <h3>Collaborative Notes</h3>
+                <p>Create and edit notes with others</p>
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+
   );
 }

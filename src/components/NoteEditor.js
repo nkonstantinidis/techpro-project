@@ -29,15 +29,30 @@ export default function NoteEditor({ note, user, onNoteCreated }) {
     
     const trackUserEditing = async () => {
       try {
-        // Register this user as editing the note
-        const { error } = await supabase
+        // First check if the record exists
+        const { data, error: checkError } = await supabase
           .from('note_editors')
-          .upsert({ 
-            note_id: note.id, 
-            user_id: user.id 
-          });
+          .select('id')
+          .eq('note_id', note.id)
+          .eq('user_id', user.id)
+          .single();
           
-        if (error) throw error;
+        if (checkError && checkError.code !== 'PGRST116') {
+          // An error occurred that's not "No rows returned"
+          throw checkError;
+        }
+        
+        if (!data) {
+          // Record doesn't exist, so create it
+          const { error: insertError } = await supabase
+            .from('note_editors')
+            .insert({ 
+              note_id: note.id, 
+              user_id: user.id 
+            });
+            
+          if (insertError) throw insertError;
+        }
         
       } catch (error) {
         console.error('Error registering as editor:', error);

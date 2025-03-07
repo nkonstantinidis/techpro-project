@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import NotesList from '../../components/NotesList';
 import NoteEditor from '../../components/NoteEditor';
+import Link from 'next/link';
+
+
 
 export default function NotesPage() {
   const [user, setUser] = useState(null);
@@ -40,6 +43,9 @@ export default function NotesPage() {
 
   return (
     <div className={styles.container}>
+      <Link href="/" className={styles.backLink}>
+  &larr; Back to Home
+</Link>
       <h2 className={styles.pageTitle}>Collaborative Notes</h2>
       <div className={styles.notesLayout}>
         <NotesList 

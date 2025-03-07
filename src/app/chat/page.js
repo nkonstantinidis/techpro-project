@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Chat from '../../components/Chat';
+import Link from 'next/link';
+
 import styles from './page.module.css';
 
 export default function ChatPage() {
@@ -33,6 +35,9 @@ export default function ChatPage() {
   return (
 
       <div className={styles.container}>
+        <Link href="/" className={styles.backLink}>
+  &larr; Back to Home
+</Link>
         <h2>Live Chat</h2>
         <Chat user={user} />
       </div>

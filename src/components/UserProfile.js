@@ -29,23 +29,40 @@ export default function UserProfile({ onProfileCreated }) {
     setError(null);
     
     try {
-      // Generate a UUID for this user
-      const userId = uuidv4();
-      
-      // Insert user into Supabase
-      const { error } = await supabase
+      // First, check if the username already exists
+      const { data: existingUser, error: checkError } = await supabase
         .from('users')
-        .insert([
-          { id: userId, username: username.trim() }
-        ]);
+        .select('id, username')
+        .eq('username', username.trim())
+        .single();
         
-      if (error) throw error;
+      if (checkError && checkError.code !== 'PGRST116') {
+        // An error occurred that's not "No rows returned"
+        throw checkError;
+      }
       
-      // Create user object
-      const user = { 
-        id: userId, 
-        username: username.trim() 
-      };
+      let user;
+      
+      if (existingUser) {
+        // User exists, use this user
+        user = existingUser;
+      } else {
+        // User doesn't exist, create a new one
+        const userId = uuidv4();
+        
+        const { error } = await supabase
+          .from('users')
+          .insert([
+            { id: userId, username: username.trim() }
+          ]);
+          
+        if (error) throw error;
+        
+        user = { 
+          id: userId, 
+          username: username.trim() 
+        };
+      }
       
       // Save to local storage
       localStorage.setItem('chatUser', JSON.stringify(user));
@@ -54,8 +71,8 @@ export default function UserProfile({ onProfileCreated }) {
       onProfileCreated(user);
       
     } catch (error) {
-      console.error('Error creating profile:', error);
-      setError(error.message || 'Failed to create profile');
+      console.error('Error creating/retrieving profile:', error);
+      setError(error.message || 'Failed to create/retrieve profile');
     } finally {
       setLoading(false);
     }

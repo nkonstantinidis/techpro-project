@@ -58,26 +58,3 @@ CREATE POLICY "Anyone can create notes" ON notes
 CREATE POLICY "Anyone can update notes" ON notes
   FOR UPDATE USING (true);
 
--- Table to track which users are editing which notes
-CREATE TABLE note_editors (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  note_id UUID REFERENCES notes(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(note_id, user_id)
-);
-
--- Enable Row Level Security
-ALTER TABLE note_editors ENABLE ROW LEVEL SECURITY;
-
--- Create policy to allow anyone to read note editors
-CREATE POLICY "Note editors are viewable by everyone" ON note_editors
-  FOR SELECT USING (true);
-
--- Create policy to allow anyone to insert note editors
-CREATE POLICY "Anyone can register as a note editor" ON note_editors
-  FOR INSERT WITH CHECK (true);
-
--- Create policy to allow anyone to delete note editors
-CREATE POLICY "Anyone can unregister as a note editor" ON note_editors
-  FOR DELETE USING (true);

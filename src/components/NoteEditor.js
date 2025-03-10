@@ -7,7 +7,6 @@ export default function NoteEditor({ note, user, onNoteCreated }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);
-  const [activeUsers, setActiveUsers] = useState([]);
   const [error, setError] = useState(null);
   
   // Initialize editor with note data or empty values
@@ -22,101 +21,6 @@ export default function NoteEditor({ note, user, onNoteCreated }) {
     
     setError(null);
   }, [note]);
-  
-  // Track active users on this note
-  useEffect(() => {
-    if (!note || !user) return;
-    
-    const trackUserEditing = async () => {
-      try {
-        // First check if the record exists
-        const { data, error: checkError } = await supabase
-          .from('note_editors')
-          .select('id')
-          .eq('note_id', note.id)
-          .eq('user_id', user.id)
-          .single();
-          
-        if (checkError && checkError.code !== 'PGRST116') {
-          // An error occurred that's not "No rows returned"
-          throw checkError;
-        }
-        
-        if (!data) {
-          // Record doesn't exist, so create it
-          const { error: insertError } = await supabase
-            .from('note_editors')
-            .insert({ 
-              note_id: note.id, 
-              user_id: user.id 
-            });
-            
-          if (insertError) throw insertError;
-        }
-        
-      } catch (error) {
-        console.error('Error registering as editor:', error);
-      }
-    };
-    
-    trackUserEditing();
-    
-    // Fetch active editors
-    const fetchEditors = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('note_editors')
-          .select(`
-            user_id,
-            users (id, username)
-          `)
-          .eq('note_id', note.id);
-          
-        if (error) throw error;
-        
-        setActiveUsers(data.map(item => item.users) || []);
-      } catch (error) {
-        console.error('Error fetching active editors:', error);
-      }
-    };
-    
-    fetchEditors();
-    
-    // Subscribe to changes in editors
-    const subscription = supabase
-      .channel(`note-editors-${note.id}`)
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'note_editors',
-        filter: `note_id=eq.${note.id}`
-      }, (payload) => {
-        fetchEditors();
-      })
-      .subscribe();
-      
-    // Cleanup
-    return () => {
-      subscription.unsubscribe();
-      
-      // Unregister this user when leaving
-      const unregisterUser = async () => {
-        try {
-          await supabase
-            .from('note_editors')
-            .delete()
-            .match({ 
-              note_id: note.id, 
-              user_id: user.id 
-            });
-        } catch (error) {
-          console.error('Error unregistering as editor:', error);
-        }
-      };
-      
-      unregisterUser();
-    };
-  }, [note, user]);
   
   // Auto-save functionality
   useEffect(() => {
@@ -179,14 +83,6 @@ export default function NoteEditor({ note, user, onNoteCreated }) {
         
       if (error) throw error;
       
-      // Register as editor for this note
-      await supabase
-        .from('note_editors')
-        .insert([{ 
-          note_id: noteId, 
-          user_id: user.id 
-        }]);
-      
       // Update parent component with new note
       onNoteCreated(data);
       
@@ -213,15 +109,6 @@ export default function NoteEditor({ note, user, onNoteCreated }) {
       <div className={styles.header}>
         <h3>{note ? 'Edit Note' : 'Create New Note'}</h3>
         {saving && <span className={styles.savingLabel}>Saving...</span>}
-        {note && activeUsers.length > 0 && (
-          <div className={styles.activeUsers}>
-            <span>Active users: </span>
-            {activeUsers
-              .filter(u => u.id !== user.id)
-              .map(u => u.username)
-              .join(', ')}
-          </div>
-        )}
       </div>
       
       <form onSubmit={handleSubmit} className={styles.form}>

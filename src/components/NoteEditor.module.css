@@ -77,3 +77,9 @@
     color: #e53e3e;
     margin-bottom: 1rem;
   }
+
+  .lastEditor {
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: #6c757d;
+  }

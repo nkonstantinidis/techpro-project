@@ -44,7 +44,7 @@ export default function NotesPage() {
   return (
     <div className={styles.container}>
       <Link href="/" className={styles.backLink}>
-  &larr; Back to Home
+   Back to Home
 </Link>
       <h2 className={styles.pageTitle}>Collaborative Notes</h2>
       <div className={styles.notesLayout}>

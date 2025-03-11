@@ -1,3 +1,5 @@
+import './globals.css';
+
 export const metadata = {
   title: 'Realtime Collaboration App',
   description: 'Built with Next.js and Supabase',
@@ -15,7 +17,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <footer className="footer">
-            <p>Built with Next.js and Supabase</p>
+            <p>TechPro Academy 2025</p>
           </footer>
         </div>
       </body>

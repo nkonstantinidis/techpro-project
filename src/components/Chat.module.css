@@ -45,6 +45,7 @@
   .username {
     font-weight: bold;
     color: #0070f3;
+    margin-right: 8px;
   }
   
   .time {

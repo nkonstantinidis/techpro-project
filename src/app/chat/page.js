@@ -36,8 +36,8 @@ export default function ChatPage() {
 
       <div className={styles.container}>
         <Link href="/" className={styles.backLink}>
-  Back to Home
-</Link>
+          Back to Home
+        </Link>
         <h2>Live Chat</h2>
         <Chat user={user} />
       </div>

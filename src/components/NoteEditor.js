@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../utils/supabaseClient';
 import styles from './NoteEditor.module.css';
 
-export default function NoteEditor({ note, user, onNoteCreated }) {
+export default function NoteEditor({ note, onNoteCreated }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);

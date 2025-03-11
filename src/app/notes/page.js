@@ -44,19 +44,17 @@ export default function NotesPage() {
   return (
     <div className={styles.container}>
       <Link href="/" className={styles.backLink}>
-   Back to Home
-</Link>
+        Back to Home
+      </Link>
       <h2 className={styles.pageTitle}>Collaborative Notes</h2>
       <div className={styles.notesLayout}>
         <NotesList 
           onSelectNote={handleSelectNote} 
           onCreateNewNote={handleCreateNewNote}
           selectedNoteId={selectedNote?.id}
-          user={user}
         />
         <NoteEditor 
           note={selectedNote} 
-          user={user} 
           onNoteCreated={handleSelectNote}
         />
       </div>

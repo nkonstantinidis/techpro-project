@@ -7,7 +7,6 @@ export default function Chat({ user }) {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
-
   // Fetch initial messages
   useEffect(() => {
     const fetchMessages = async () => {
@@ -44,31 +43,28 @@ export default function Chat({ user }) {
         table: 'messages' 
       }, (payload) => {
         // Fetch the username for this new message
-        const fetchUserAndAddMessage = async () => {
+        const updateMessages = async () => {
           try {
             const { data, error } = await supabase
-              .from('users')
-              .select('username')
-              .eq('id', payload.new.user_id)
+              .from('messages')
+              .select(`
+                id,
+                content,
+                created_at,
+                users (id, username)
+              `)
+              .eq('id', payload.new.id)
               .single();
               
             if (error) throw error;
             
-            const newMessage = {
-              ...payload.new,
-              users: {
-                id: payload.new.user_id,
-                username: data.username
-              }
-            };
-            
-            setMessages(prev => [...prev, newMessage]);
+            setMessages(prev => [...prev, data]);
           } catch (error) {
-            console.error('Error fetching user for new message:', error);
+            console.error('Error fetching complete message data:', error);
           }
         };
         
-        fetchUserAndAddMessage();
+        updateMessages();
       })
       .subscribe();
       

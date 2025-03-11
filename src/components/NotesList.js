@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import styles from './NotesList.module.css';
 
-export default function NotesList({ onSelectNote, onCreateNewNote, selectedNoteId, user }) {
+export default function NotesList({ onSelectNote, onCreateNewNote, selectedNoteId }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
+    // fetch notes from the database
     const fetchNotes = async () => {
       try {
         const { data, error } = await supabase

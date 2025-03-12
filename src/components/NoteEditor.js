@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../utils/supabaseClient';
 import styles from './NoteEditor.module.css';
@@ -22,18 +22,8 @@ export default function NoteEditor({ note, onNoteCreated }) {
     setError(null);
   }, [note]);
   
-  // Auto-save functionality
-  useEffect(() => {
-    if (!note) return;
-    
-    const timer = setTimeout(() => {
-      saveNote();
-    }, 2000);
-    
-    return () => clearTimeout(timer);
-  }, [title, content]);
-  
-  const saveNote = async () => {
+  // Memoize saveNote function to prevent unnecessary re-renders
+  const saveNote = useCallback(async () => {
     if (saving) return;
     
     try {
@@ -59,7 +49,18 @@ export default function NoteEditor({ note, onNoteCreated }) {
     } finally {
       setSaving(false);
     }
-  };
+  }, [note, title, content, saving]);
+  
+  // Auto-save functionality
+  useEffect(() => {
+    if (!note) return;
+    
+    const timer = setTimeout(() => {
+      saveNote();
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [note, title, content, saveNote]);
   
   const createNewNote = async () => {
     if (saving) return;

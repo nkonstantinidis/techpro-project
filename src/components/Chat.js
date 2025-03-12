@@ -7,8 +7,10 @@ export default function Chat({ user }) {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
-  // Fetch initial messages
+  
+  //fetch initial messages and subscribe to new messages
   useEffect(() => {
+    // Fetch initial messages
     const fetchMessages = async () => {
       try {
         const { data, error } = await supabase
@@ -33,7 +35,6 @@ export default function Chat({ user }) {
     };
 
     fetchMessages();
-    
     // Subscribe to new messages
     const subscription = supabase
       .channel('public:messages')
@@ -42,7 +43,8 @@ export default function Chat({ user }) {
         schema: 'public', 
         table: 'messages' 
       }, (payload) => {
-        // Fetch the username for this new message
+        // Update the messages state with the new message and user data
+        console.log('New message:', payload.new);
         const updateMessages = async () => {
           try {
             const { data, error } = await supabase
@@ -82,8 +84,10 @@ export default function Chat({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Check if message is empty
     if (!newMessage.trim()) return;
     
+    // Try to insert the new message into the 'messages' table in Supabase
     try {
       const { error } = await supabase
         .from('messages')
@@ -103,6 +107,7 @@ export default function Chat({ user }) {
     }
   };
   
+  //format time function for messages
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

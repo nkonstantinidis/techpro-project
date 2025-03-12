@@ -7,18 +7,15 @@ import NotesList from '../../components/NotesList';
 import NoteEditor from '../../components/NoteEditor';
 import Link from 'next/link';
 
-
-
 export default function NotesPage() {
   const [user, setUser] = useState(null);
   const [selectedNote, setSelectedNote] = useState(null);
   const router = useRouter();
 
+  // Check if user exists in local storage and redirect to home page if not
   useEffect(() => {
-    // Check if user exists in local storage
     const storedUser = localStorage.getItem('chatUser');
     if (!storedUser) {
-      // Redirect to home page if no user
       router.push('/');
     } else {
       setUser(JSON.parse(storedUser));
@@ -33,6 +30,7 @@ export default function NotesPage() {
     setSelectedNote(null);
   };
 
+  //Display Loading... if user is not set yet
   if (!user) {
     return (
       <div className={styles.loading}>
@@ -46,7 +44,7 @@ export default function NotesPage() {
       <Link href="/" className={styles.backLink}>
         Back to Home
       </Link>
-      <h2 className={styles.pageTitle}>Collaborative Notes</h2>
+      <h2>Collaborative Notes</h2>
       <div className={styles.notesLayout}>
         <NotesList 
           onSelectNote={handleSelectNote} 

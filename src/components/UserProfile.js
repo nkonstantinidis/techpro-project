@@ -20,6 +20,7 @@ export default function UserProfile({ onProfileCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    //check if username is empty
     if (!username.trim()) {
       setError('Username is required');
       return;
@@ -29,27 +30,27 @@ export default function UserProfile({ onProfileCreated }) {
     setError(null);
     
     try {
-      // First, check if the username already exists
+      // Check if the username already exists in table 'users'
       const { data: existingUser, error: checkError } = await supabase
         .from('users')
         .select('id, username')
         .eq('username', username.trim())
         .single();
         
+      // Check for errors including "No rows returned" error
       if (checkError && checkError.code !== 'PGRST116') {
-        // An error occurred that's not "No rows returned"
         throw checkError;
       }
       
       let user;
       
+      // check if search returned a user or not and generate one if needed using uuidv4
       if (existingUser) {
-        // User exists, use this user
         user = existingUser;
       } else {
-        // User doesn't exist, create a new one
         const userId = uuidv4();
         
+        // Insert new user in supabase table 'users'
         const { error } = await supabase
           .from('users')
           .insert([
@@ -57,7 +58,7 @@ export default function UserProfile({ onProfileCreated }) {
           ]);
           
         if (error) throw error;
-        
+
         user = { 
           id: userId, 
           username: username.trim() 
@@ -67,7 +68,6 @@ export default function UserProfile({ onProfileCreated }) {
       // Save to local storage
       localStorage.setItem('chatUser', JSON.stringify(user));
       
-      // Notify parent component
       onProfileCreated(user);
       
     } catch (error) {

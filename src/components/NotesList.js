@@ -7,7 +7,7 @@ export default function NotesList({ onSelectNote, onCreateNewNote, selectedNoteI
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // fetch notes from the database
+    // fetch notes from supabase
     const fetchNotes = async () => {
       try {
         const { data, error } = await supabase
